@@ -19,13 +19,14 @@ bridge.set_bridge(new_bridge="torch")
 with open("banned_words.txt") as f:
     banned_words = f.readlines()
     banned_words = [word.strip() for word in banned_words]
-    
+
+
 def get_annotation(
     dir_path: str | PathLike,
     lang: str = "en",
     model: str = "server",
-    device: torch.device | None = None
-    )->Dict:
+    device: torch.device | None = None,
+) -> Dict:
     """Creates dict with annotations
 
     Args:
@@ -51,15 +52,57 @@ def get_annotation(
         stt_model = whisper.load_model("medium", device=_device)
     elif model == "local":
         stt_model = whisper.load_model("small", device=_device)
-        
+
     records = os.listdir(dir_path)
     timemarks_for_targets = {}
-    for record_name in tqdm(records):        
+    for record_name in tqdm(records):
         file_path = os.path.join(dir_path, record_name)
-        res = speech_to_text.transcribe_video(stt_model=stt_model, record_path=file_path, lang=lang)
+        res = speech_to_text.transcribe_video(
+            stt_model=stt_model, record_path=file_path, lang=lang
+        )
         timemarks_for_targets[file_path] = speech_to_text.get_all_words(res)
-    
+
     return timemarks_for_targets
+
+
+def get_samples(files_features: Union[str, PathLike, List]) -> List:
+    """Function for getting samples with from record with sliding window
+
+    Args:
+        files_features (Union[str, PathLike, List]): _description_
+
+    Returns:
+        List: _description_
+    """
+    if isinstance(files_features, str):
+        with open(files_features) as f:
+            files_features = json.load(f)
+    else:
+        samples = []
+        for elem in files_features:
+            for num in range(0, len(files_features[elem]), 2):
+                if files_features[elem][num : num + 7][-1]["mask"] == 1:
+                    try:
+                        samples.append(files_features[elem][num : num + 7])
+                    except IndexError:
+                        samples.append(files_features[elem][num:])
+                elif files_features[elem][num : num + 7][-1]["mask"] == 0:
+                    try:
+                        samples.append(files_features[elem][num : num + 7])
+                    except IndexError:
+                        samples.append(files_features[elem][num:])
+                elif files_features[elem][num : num + 7][-1]["mask"] == 2:
+                    try:
+                        samples.append(files_features[elem][num : num + 7])
+                    except IndexError:
+                        samples.append(files_features[elem][num:])
+                elif files_features[elem][num:][-1]["mask"] == 2:
+                    try:
+                        samples.append(files_features[elem][num : num + 7])
+                    except IndexError:
+                        samples.append(files_features[elem][num:])
+    return samples
+
 
 def annotation_to_features(annotation: Dict, output_path: str | PathLike = None):
     """Extract features for every records from the list
@@ -76,27 +119,29 @@ def annotation_to_features(annotation: Dict, output_path: str | PathLike = None)
     for name in tqdm(annotation.keys()):
         if annotation[name]:
             files_features[name] = words_to_features(annotation[name], name)
-    
+
     if output_path:
         for name in files_features:
             for i in range(len(files_features[name])):
                 # convert tensors to list for saving in json file
-                files_features[name][i]["features"] = files_features[name][i]["features"].numpy().tolist()
+                files_features[name][i]["features"] = (
+                    files_features[name][i]["features"].numpy().tolist()
+                )
         with open(output_path, "w") as f:
             json.dump(files_features, f)
-    
+
     return files_features
 
-def words_to_features(timestamps: Dict,
-                      file_path: str | PathLike,
-                      sr: int = 16000) -> Dict:
+
+def words_to_features(
+    timestamps: Dict, file_path: str | PathLike, sr: int = 16000
+) -> Dict:
     """Function to convert that extracts MFCCs based on timestamps for annotation
 
     Args:
         timestamps (_type_): _description_
         file_path (_type_): _description_
         sr (_type_, optional): _description_. Defaults to sample_rate.
-        output_path (_type_, optional): _description_. Defaults to None.
 
     Returns:
         _type_: _description_
@@ -105,23 +150,43 @@ def words_to_features(timestamps: Dict,
     features = []
     signal = AudioReader(file_path, sample_rate=sr, mono=True)
     if timestamps[0]["start"] != 0:
-        fragment = signal[:][0][:int(timestamps[0]["start"]*sr)]
+        fragment = signal[:][0][: int(timestamps[0]["start"] * sr)]
         feature = to_mfcc(fragment)
-        features.append({"start": 0, "end": timestamps[0]["start"], "features": feature,
-                         "text": "", "mask": 0})
+        features.append(
+            {
+                "start": 0,
+                "end": timestamps[0]["start"],
+                "features": feature,
+                "text": "",
+                "mask": 0,
+            }
+        )
     for elem in timestamps[0:]:
-        fragment = signal[:][0][int(elem["start"]*sr):int(elem["end"]*sr)]
+        fragment = signal[:][0][int(elem["start"] * sr) : int(elem["end"] * sr)]
         try:
             if elem["text"] in banned_words:
                 mask = 2
             else:
                 mask = 1
             feature = to_mfcc(fragment)
-            features.append({"start": elem["start"], "end": elem["end"], "features": feature,
-                             "text": elem["text"], "mask": mask})
+            features.append(
+                {
+                    "start": elem["start"],
+                    "end": elem["end"],
+                    "features": feature,
+                    "text": elem["text"],
+                    "mask": mask,
+                }
+            )
         except RuntimeError:
-            features.append({"start": elem["start"], "end": elem["end"], "features": [],
-                             "text": "", "mask": 0})
-        
+            features.append(
+                {
+                    "start": elem["start"],
+                    "end": elem["end"],
+                    "features": [],
+                    "text": "",
+                    "mask": 0,
+                }
+            )
 
     return features

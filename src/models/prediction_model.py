@@ -6,22 +6,23 @@ import torch.nn as nn
 class LSTM_attention(nn.Module):
     def __init__(self, input_dim, hidden_dim, num_layers, output_dim):
         super(LSTM_attention, self).__init__()
-        
+
         # Define the LSTM layers
-        self.lstm1 = nn.LSTM(input_dim, hidden_dim, num_layers, batch_first=True,
-                             bidirectional=True)
+        self.lstm1 = nn.LSTM(
+            input_dim, hidden_dim, num_layers, batch_first=True, bidirectional=True
+        )
         self.lstm2 = nn.LSTM(
-            input_size=hidden_dim*2,
+            input_size=hidden_dim * 2,
             hidden_size=hidden_dim,
             num_layers=1,
-            bidirectional=True)
+            bidirectional=True,
+        )
         self.dropout = nn.Dropout(0.2)
-        self.attention1 = Attention(hidden_dim*2, batch_first=True)
-        self.attention2 = Attention(hidden_dim*2, batch_first=True)
+        self.attention1 = Attention(hidden_dim * 2, batch_first=True)
+        self.attention2 = Attention(hidden_dim * 2, batch_first=True)
         # Define the output layer
-        self.fc = nn.Linear(hidden_dim*4, output_dim)
-        
-        # Define the sigmoid function for multilabel classification
+        self.fc = nn.Linear(hidden_dim * 4, output_dim)
+
         self.softmax = nn.Softmax()
 
     def forward(self, x):
@@ -32,11 +33,9 @@ class LSTM_attention(nn.Module):
         x, _ = self.attention1(out1, 64)
         out2, (h_n, c_n) = self.lstm2(out1)
         y, _ = self.attention2(out2, 64)
-        
-        out = torch.cat([x, y], dim=1)
-        # Pass the output through the output layer and sigmoid activation function for multilabel classification
-        out = self.fc(out)
 
+        out = torch.cat([x, y], dim=1)
+        out = self.fc(out)
         out = self.softmax(out)
         return out
 
@@ -48,7 +47,9 @@ class Attention(nn.Module):
         self.hidden_size = hidden_size
         self.batch_first = batch_first
 
-        self.att_weights = nn.Parameter(torch.Tensor(1, hidden_size), requires_grad=True)
+        self.att_weights = nn.Parameter(
+            torch.Tensor(1, hidden_size), requires_grad=True
+        )
 
         stdv = 1.0 / np.sqrt(self.hidden_size)
         for weight in self.att_weights:
@@ -59,15 +60,12 @@ class Attention(nn.Module):
             batch_size, max_len = inputs.size()[:2]
         else:
             max_len, batch_size = inputs.size()[:2]
-            
+
         # apply attention layer
-        weights = torch.bmm(inputs,
-                            self.att_weights  # (1, hidden_size)
-                            .permute(1, 0)  # (hidden_size, 1)
-                            .unsqueeze(0)  # (1, hidden_size, 1)
-                            .repeat(batch_size, 1, 1) # (batch_size, hidden_size, 1)
-                            )
-    
+        weights = torch.bmm(
+            inputs, self.att_weights.permute(1, 0).unsqueeze(0).repeat(batch_size, 1, 1)
+        )
+
         attentions = torch.softmax(F.relu(weights.squeeze()), dim=-1)
 
         # create mask based on the sentence lengths
@@ -76,7 +74,7 @@ class Attention(nn.Module):
         # apply mask and renormalize attention scores (weights)
         masked = attentions * mask
         _sums = masked.sum(-1).unsqueeze(-1)  # sums per row
-        
+
         attentions = masked.div(_sums)
 
         # apply attention weights
