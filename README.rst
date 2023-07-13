@@ -4,7 +4,7 @@ Description
 ===============
 
 .. image:: docs/img/pipeline.png
-    :width: 500px
+    :width: 750px
     :align: center
     :alt: Pipeline of the proposed aproach 
 
@@ -36,8 +36,8 @@ src/features - scripts for features extraction
 src/models - models's architecture and tools for usage
 src/notebooks - examples
 
-It is possible to download `test records https://drive.google.com/drive/folders/1RRHt0MA1Z-qWDs3sOnyTml5azjzgsq4o?usp=sharing`_ for quick start.
-Default weights for prediction model can be download `here https://drive.google.com/file/d/1wG8P5OfGgSoRnPqthSjSDosvUsqJaXF2/view?usp=sharing`_`
+It is possible to download [test records](https://drive.google.com/drive/folders/1RRHt0MA1Z-qWDs3sOnyTml5azjzgsq4o?usp=sharing) for quick start.
+Default weights for prediction model can be download [here](https://drive.google.com/file/d/1wG8P5OfGgSoRnPqthSjSDosvUsqJaXF2/view?usp=sharing)
 
 .. code-block:: bash
 python3 inference.py profanity-predictor/src/data/test_records cuda profanity-predictor/weights/model_attention_asr.pth
@@ -45,13 +45,10 @@ python3 inference.py profanity-predictor/src/data/test_records cuda profanity-pr
 Backlog
 =============
 
-Initial inference for test data: |check_|
-
-Real-time implementation: |uncheck|
-
-Examples : |uncheck_|
-
-Tests : |uncheck_|
+- [x] Initial inference for test data
+- [ ] Real-time implementation
+- [ ] Examples
+- [ ] Tests
 
 Supported by
 ============
