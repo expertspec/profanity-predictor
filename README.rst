@@ -38,7 +38,7 @@ src/notebooks - examples
 
 It is possible to download `test records <https://drive.google.com/drive/folders/1RRHt0MA1Z-qWDs3sOnyTml5azjzgsq4o?usp=sharing>`_ for quick start.
 
-Default weights for prediction model can be download `here <https://drive.google.com/file/d/1wG8P5OfGgSoRnPqthSjSDosvUsqJaXF2/view?usp=sharin>`_
+Default weights for prediction model can be download `here <https://drive.google.com/file/d/1vhaCUvYX9oO_K5Md9aSE6AlrvOu7QC9F/view?usp=sharing>`_
 
 Run inference for prediction on the samples from test records
 
