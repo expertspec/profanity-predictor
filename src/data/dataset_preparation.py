@@ -16,11 +16,6 @@ from tqdm import tqdm
 bridge.set_bridge(new_bridge="torch")
 
 
-with open("banned_words.txt") as f:
-    banned_words = f.readlines()
-    banned_words = [word.strip() for word in banned_words]
-
-
 def get_annotation(
     dir_path: str | PathLike,
     lang: str = "en",
@@ -104,7 +99,9 @@ def get_samples(files_features: Union[str, PathLike, List]) -> List:
     return samples
 
 
-def annotation_to_features(annotation: Dict, output_path: str | PathLike = None):
+def annotation_to_features(
+    annotation: Dict, output_path: str | PathLike = None, banned_words=None
+):
     """Extract features for every records from the list
 
     Args:
@@ -118,7 +115,9 @@ def annotation_to_features(annotation: Dict, output_path: str | PathLike = None)
 
     for name in tqdm(annotation.keys()):
         if annotation[name]:
-            files_features[name] = words_to_features(annotation[name], name)
+            files_features[name] = words_to_features(
+                annotation[name], name, banned_words=banned_words
+            )
 
     if output_path:
         for name in files_features:
@@ -134,7 +133,7 @@ def annotation_to_features(annotation: Dict, output_path: str | PathLike = None)
 
 
 def words_to_features(
-    timestamps: Dict, file_path: str | PathLike, sr: int = 16000
+    timestamps: Dict, file_path: str | PathLike, sr: int = 16000, banned_words=None
 ) -> Dict:
     """Function to convert that extracts MFCCs based on timestamps for annotation
 
