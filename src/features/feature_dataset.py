@@ -5,7 +5,7 @@ from os import PathLike
 from typing import Dict, List, Union
 
 import torch
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import Dataset
 
 
 class FeatureDataset(Dataset):
@@ -44,6 +44,7 @@ class FeatureDataset(Dataset):
 
     def __getitem__(self, idx):
         # text = self.get_texts(idx)
+        self._right_pad_if_necessary()
         features = self.get_features(idx)
         mask = self.get_mask(idx)
         return features, mask

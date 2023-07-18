@@ -1,6 +1,7 @@
 import numpy as np
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 
 class LSTM_attention(nn.Module):
@@ -27,6 +28,7 @@ class LSTM_attention(nn.Module):
 
     def forward(self, x):
         # Pass the input sequence through the LSTM layer
+        x = torch.Tensor(x)
         x = x.view(x.size(0), x.size(1), -1)
         x = self.dropout(x)
         out1, (h_n, c_n) = self.lstm1(x)
@@ -69,7 +71,7 @@ class Attention(nn.Module):
         attentions = torch.softmax(F.relu(weights.squeeze()), dim=-1)
 
         # create mask based on the sentence lengths
-        mask = torch.ones(attentions.size(), requires_grad=True).cuda()
+        mask = torch.ones(attentions.size(), requires_grad=True)
 
         # apply mask and renormalize attention scores (weights)
         masked = attentions * mask

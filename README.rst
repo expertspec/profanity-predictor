@@ -30,11 +30,21 @@ Install all dependencies from ``requirements.txt`` file:
 How to Use
 ==========
 
-
-src/data - scripts for dataset preporation
-src/features - scripts for features extraction
-src/models - models's architecture and tools for usage
-src/notebooks - examples
+.. code-block:: bash
+    ├───data
+    │   └───test_records
+    ├───docs        # Documentation
+    │   ├───en
+    │   ├───img
+    │   ├───ru
+    │   └───source
+    ├───notebooks   # Usage examples 
+    ├───src         # Executive files
+    │   ├───features        # Scripts for features extraction
+    │   │   └───tools
+    │   ├───models          # Models's architecture and tools for usage
+    │   └───preprocessing   # Scripts for dataset preporation
+    └───weights     # Folder for model's weights
 
 It is possible to download `test records <https://drive.google.com/drive/folders/1RRHt0MA1Z-qWDs3sOnyTml5azjzgsq4o?usp=sharing>`_ for quick start.
 
@@ -44,7 +54,9 @@ Run inference for prediction on the samples from test records
 
 .. code-block:: bash
 
-    $ python3 inference.py profanity-predictor/src/data/test_records cuda profanity-predictor/weights/model_attention_asr.pth
+    $  python3 inference.py ./data/test_records --device cpu  
+
+It is also possible to specify arguments "--path_to_banned_words" and "--weights"
 
 Backlog
 =============

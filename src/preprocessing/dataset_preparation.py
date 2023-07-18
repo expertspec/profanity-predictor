@@ -18,24 +18,19 @@ bridge.set_bridge(new_bridge="torch")
 
 def get_annotation(
     dir_path: str | PathLike,
-    lang: str = "en",
-    model: str = "server",
+    model: str = "local",
     device: torch.device | None = None,
 ) -> Dict:
     """Creates dict with annotations
 
     Args:
         video_path (str | Pathlike): Path to the local video file.
-        lang (str, optional): Language for speech recognition ['ru', 'en']. Defaults to 'en'.
-        model (str, optional): Model configuration for speech recognition ['server', 'local']. Defaults to 'server'.
+        model (str, optional): Model configuration for speech recognition ['server', 'local']. Defaults to 'local'.
         device (torch.device | None, optional): Device type on local machine (GPU recommended). Defaults to None.
 
     Raises:
-        NotImplementedError: If 'lang' is not equal to 'en' or 'ru'.
         NotImplementedError: If 'model' is not equal to 'server' or 'local'.
     """
-    if lang not in ["en", "ru"]:
-        raise NotImplementedError("'lang' must be 'en' or 'ru'.")
     if model not in ["server", "local"]:
         raise NotImplementedError("'model' must be 'server' or 'local'.")
 
@@ -53,7 +48,7 @@ def get_annotation(
     for record_name in tqdm(records):
         file_path = os.path.join(dir_path, record_name)
         res = speech_to_text.transcribe_video(
-            stt_model=stt_model, record_path=file_path, lang=lang
+            stt_model=stt_model, record_path=file_path
         )
         timemarks_for_targets[file_path] = speech_to_text.get_all_words(res)
 
