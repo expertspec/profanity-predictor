@@ -31,20 +31,22 @@ How to Use
 ==========
 
 .. code-block:: bash
-    ├───data
-    │   └───test_records
-    ├───docs        # Documentation
-    │   ├───en
-    │   ├───img
-    │   ├───ru
-    │   └───source
-    ├───notebooks   # Usage examples 
-    ├───src         # Executive files
-    │   ├───features        # Scripts for features extraction
-    │   │   └───tools
-    │   ├───models          # Models's architecture and tools for usage
-    │   └───preprocessing   # Scripts for dataset preporation
-    └───weights     # Folder for model's weights
+
+    /profanity-predictor
+        ├───data
+        │   └───test_records
+        ├───docs        # Documentation
+        │   ├───en
+        │   ├───img
+        │   ├───ru
+        │   └───source
+        ├───notebooks   # Usage examples 
+        ├───src         # Executive files
+        │   ├───features        # Scripts for features extraction
+        │   │   └───tools
+        │   ├───models          # Models's architecture and tools for usage
+        │   └───preprocessing   # Scripts for dataset preporation
+        └───weights     # Folder for model's weights
 
 It is possible to download `test records <https://drive.google.com/drive/folders/1RRHt0MA1Z-qWDs3sOnyTml5azjzgsq4o?usp=sharing>`_ for quick start.
 
