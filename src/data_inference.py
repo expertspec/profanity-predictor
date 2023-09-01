@@ -14,9 +14,18 @@ from tqdm import tqdm
 @click.command()
 @click.argument("path_to_data", type=str)
 @click.option("--device", type=str, help="Specify device to use")
-@click.option("--weights", type=str, default="./weights/model_attention_asr.pt", help="Specify path to weights file")
-@click.option("--path_to_banned_words", default="./data/banned_words.txt", type=str, help="Specify path to banned words file")
-
+@click.option(
+    "--weights",
+    type=str,
+    default="./weights/model_attention_asr.pt",
+    help="Specify path to weights file",
+)
+@click.option(
+    "--path_to_banned_words",
+    default="./data/banned_words.txt",
+    type=str,
+    help="Specify path to banned words file",
+)
 def get_samples_predictions(
     path_to_data: str | PathLike,
     device: torch.device | None = None,
@@ -33,7 +42,7 @@ def get_samples_predictions(
     Returns:
         list: list with labels for every sample
     """
-    
+
     _device = torch.device("cpu")
     if device is not None:
         _device = device
@@ -50,7 +59,9 @@ def get_samples_predictions(
     dataset = FeatureDataset(samples, 17, 7)
     dataloader = DataLoader(dataset, shuffle=False, batch_size=4)
     prediction_model = LSTM_attention(221, 1024, 2, 3).to(_device)
-    prediction_model.load_state_dict(torch.load(weights, map_location=torch.device('cpu')))
+    prediction_model.load_state_dict(
+        torch.load(weights, map_location=torch.device("cpu"))
+    )
     prediction_model.eval()
     with torch.no_grad():
         predictions = []

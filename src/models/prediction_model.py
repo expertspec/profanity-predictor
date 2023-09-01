@@ -36,9 +36,14 @@ class LSTM_attention(nn.Module):
         out2, (h_n, c_n) = self.lstm2(out1)
         y, _ = self.attention2(out2, 64)
 
-        out = torch.cat([x, y], dim=1)
+        try:
+            out = torch.cat([x, y], dim=1)
+        # for prediction when batch size is 1
+        except IndexError:
+            out = torch.cat([x, y], dim=0)
         out = self.fc(out)
         out = self.softmax(out)
+
         return out
 
 

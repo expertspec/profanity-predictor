@@ -8,9 +8,9 @@ import torch
 import whisper
 
 
-def transcribe_video(
+def transcribe_signal(
     stt_model,
-    record_path: str | PathLike,
+    signal: torch.Tensor | str | PathLike,
     lang: str = "en",
 ) -> Dict:
     """Speech recognition module from video.
@@ -22,7 +22,7 @@ def transcribe_video(
     """
 
     transribation = transcribe.transcribe_timestamped(
-        model=stt_model, audio=record_path, language=lang
+        model=stt_model, audio=signal, language=lang
     )
 
     return transribation
