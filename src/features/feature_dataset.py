@@ -43,13 +43,12 @@ class FeatureDataset(Dataset):
         return len(self.data)
 
     def __getitem__(self, idx):
-        # text = self.get_texts(idx)
-        self._right_pad_if_necessary()
+        self._right_pad()
         features = self.get_features(idx)
         mask = self.get_mask(idx)
         return features, mask
 
-    def _right_pad_if_necessary(self):
+    def _right_pad(self):
         for elem in range(len(self.data)):
             for i in range(len(self.data[elem])):
                 # padding
@@ -63,20 +62,12 @@ class FeatureDataset(Dataset):
                         )
                     # truncation
                     elif self.data[elem][i]["features"].shape[1] > self.num_bins:
-                        diff = self.num_bins - self.data[elem][i]["features"].shape[1]
                         self.data[elem][i]["features"] = torch.narrow(
                             self.data[elem][i]["features"], 1, 0, self.num_bins
                         )
             if len(self.data[elem]) < self.num_elems:
                 while len(self.data[elem]) < self.num_elems:
                     self.data[elem].append(self.pad)
-
-    # extracts text sequence
-    # def get_texts(self, idx):
-    #     texts = []
-    #     for i in range(len(self.data[idx])):
-    #         texts.append(self.data[idx][i]["text"])
-    #     return torch.Tensor(texts)
 
     def get_features(self, idx):
         features = []
