@@ -4,7 +4,7 @@ import json
 import os
 from collections import defaultdict
 from os import PathLike
-from typing import Dict, List, Tuple
+from typing import Union, Dict, List, Tuple
 
 import torch
 import torchaudio
@@ -17,14 +17,16 @@ bridge.set_bridge(new_bridge="torch")
 
 
 def get_annotation(
-    dir_path: str | PathLike,
+    signal: torch.Tensor = None,
+    dir_path: str | PathLike = None,
     model: str = "local",
     device: torch.device | None = None,
 ) -> Dict:
     """Creates dict with annotations
 
     Args:
-        video_path (str | Pathlike): Path to the local video file.
+        signal (torch.Tensor): Audio signal,
+        dir_path (str | Pathlike): Path to the dir with records.
         model (str, optional): Model configuration for speech recognition ['server', 'local']. Defaults to 'local'.
         device (torch.device | None, optional): Device type on local machine (GPU recommended). Defaults to None.
 
@@ -43,14 +45,20 @@ def get_annotation(
     elif model == "local":
         stt_model = whisper.load_model("small", device=_device)
 
-    records = os.listdir(dir_path)
-    timemarks_for_targets = {}
-    for record_name in tqdm(records):
-        file_path = os.path.join(dir_path, record_name)
-        res = speech_to_text.transcribe_video(
-            stt_model=stt_model, record_path=file_path
-        )
-        timemarks_for_targets[file_path] = speech_to_text.get_all_words(res)
+    # if signal:
+
+    if dir_path:
+        records = os.listdir(dir_path)
+        if ".gitkeep" in records:
+            records.remove(".gitkeep")
+
+        timemarks_for_targets = {}
+        for record_name in tqdm(records):
+            file_path = os.path.join(dir_path, record_name)
+            res = speech_to_text.transcribe_signal(
+                stt_model=stt_model, record_path=file_path
+            )
+            timemarks_for_targets[file_path] = speech_to_text.get_all_words(res)
 
     return timemarks_for_targets
 
@@ -95,7 +103,10 @@ def get_samples(files_features: Union[str, PathLike, List]) -> List:
 
 
 def annotation_to_features(
-    annotation: Dict, output_path: str | PathLike = None, banned_words=None
+    annotation: Dict | List,
+    signal: torch.Tensor = None,
+    output_path: str | PathLike = None,
+    banned_words=None,
 ):
     """Extract features for every records from the list
 
@@ -107,12 +118,22 @@ def annotation_to_features(
         _type_: _description_
     """
     files_features = defaultdict(list)
-
-    for name in tqdm(annotation.keys()):
-        if annotation[name]:
-            files_features[name] = words_to_features(
-                annotation[name], name, banned_words=banned_words
-            )
+    if isinstance(annotation, dict):
+        for name in tqdm(annotation.keys()):
+            if annotation[name]:
+                if signal:
+                    files_features[name] = words_to_features(
+                        timestamps=annotation[name],
+                        signal=signal,
+                        file_path=name,
+                        banned_words=banned_words,
+                    )
+                else:
+                    files_features[name] = words_to_features(
+                        timestamps=annotation[name],
+                        file_path=name,
+                        banned_words=banned_words,
+                    )
 
     if output_path:
         for name in files_features:
@@ -128,7 +149,11 @@ def annotation_to_features(
 
 
 def words_to_features(
-    timestamps: Dict, file_path: str | PathLike, sr: int = 16000, banned_words=None
+    timestamps: Dict,
+    signal: torch.Tensor = None,
+    file_path: str | PathLike = None,
+    sr: int = 16000,
+    banned_words=None,
 ) -> Dict:
     """Function to convert that extracts MFCCs based on timestamps for annotation
 
@@ -142,7 +167,8 @@ def words_to_features(
     """
     to_mfcc = torchaudio.transforms.MFCC(sr, n_mfcc=13)
     features = []
-    signal = AudioReader(file_path, sample_rate=sr, mono=True)
+    if signal == None and file_path:
+        signal = AudioReader(file_path, sample_rate=sr, mono=True)
     if timestamps[0]["start"] != 0:
         fragment = signal[:][0][: int(timestamps[0]["start"] * sr)]
         feature = to_mfcc(fragment)
