@@ -56,15 +56,22 @@ Run inference for prediction on the samples from test records
 
 .. code-block:: bash
 
-    $  python3 inference.py ./data/test_records --device cpu  
+    $  python3 data_inference.py ./data/test_records --device cpu  
 
 It is also possible to specify arguments "--path_to_banned_words" and "--weights"
+
+Run inference for working with speech stream
+
+.. code-block:: bash
+
+    $  python3 stream_inference.py
+
 
 Backlog
 =============
 
 - [x] Initial inference for test data
-- [ ] Real-time implementation
+- [x] Real-time implementation
 - [ ] Examples
 - [ ] Tests
 
