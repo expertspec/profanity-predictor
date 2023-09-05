@@ -60,7 +60,7 @@ with source:
 
 
 def signal_processing(temp_path):
-    signal = AudioReader(temp_path, sample_rate6=1000, mono=True)
+    signal = AudioReader(temp_path, sample_rate=16000, mono=True)
     transcribe = speech_to_text.transcribe_signal(stt_model, signal=signal[:][0])
     timemarks = speech_to_text.get_all_words(transcribe)
     samples = dataset_preparation.annotation_to_features(
