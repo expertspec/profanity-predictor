@@ -167,7 +167,7 @@ def words_to_features(
     """
     to_mfcc = torchaudio.transforms.MFCC(sr, n_mfcc=13)
     features = []
-    if signal == None and file_path:
+    if signal is None and file_path:
         signal = AudioReader(file_path, sample_rate=sr, mono=True)
     if timestamps[0]["start"] != 0:
         fragment = signal[:][0][: int(timestamps[0]["start"] * sr)]
@@ -181,7 +181,7 @@ def words_to_features(
                 "mask": 0,
             }
         )
-    for elem in timestamps[0:]:
+    for elem in timestamps:
         fragment = signal[:][0][int(elem["start"] * sr) : int(elem["end"] * sr)]
         try:
             if elem["text"] in banned_words:

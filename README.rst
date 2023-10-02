@@ -1,9 +1,15 @@
 Solution **profanity-predictor** is designed for the task of real-time profanity prediction based on the multimodal (audio and textual channels of the speech) analysis.
+.. start-badges
+.. list-table::
+   :stub-columns: 1
+
+   * - license
+     - | |license|
 
 Description
 ===============
 
-.. image:: docs/img/pipeline.png
+.. image:: assets/pipeline.png
     :width: 750px
     :align: center
     :alt: Pipeline of the proposed aproach 
@@ -19,13 +25,13 @@ Clone repository:
 
 .. code-block:: bash
 
-    $ git clone https://github.com/expertspec/profanity-predictor.git
+    git clone https://github.com/expertspec/profanity-predictor.git
 
 Install all dependencies from ``requirements.txt`` file:
 
 .. code-block:: bash
 
-    $ pip install -r requirements.txt
+    pip install -r requirements.txt
 
 How to Use
 ==========
@@ -33,14 +39,10 @@ How to Use
 .. code-block:: bash
 
     /profanity-predictor
-        ├───data
-        │   └───test_records
-        ├───docs        # Documentation
-        │   ├───en
-        │   ├───img
-        │   ├───ru
-        │   └───source
-        ├───notebooks   # Usage examples 
+        ├── assets  # Images for readme
+        ├── data 
+        │   ├── banned_words.txt
+        │   └── test_records
         ├───src         # Executive files
         │   ├───features        # Scripts for features extraction
         │   │   └───tools
@@ -78,10 +80,27 @@ Backlog
 Supported by
 ============
 
-.. image:: docs/img/itmo_logo.png
+.. image:: assets/itmo_logo.png
     :width: 300px
     :align: center
     :alt: ITMO university logo
 
 Funding research project No. 622279 "Development of a service for assessing the validity of expert opinion based on dynamic intelligent analysis of video content".
 
+Citation
+========
+
+.. code-block:: bash
+
+    @software{expertspec,
+        title = {profanity-predictor},
+        author = {Smirnov, Ivan},
+        year = {2023},
+        url = {https://github.com/expertspec/profanity-predictor},
+        version = {0.0.1}
+    }
+
+
+.. |license| image:: https://img.shields.io/github/license/expertspec/expert?color=deepgreen
+   :alt: Supported License
+   :target: https://github.com/expertspec/profanity-predictor/blob/main/LICENSE
