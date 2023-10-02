@@ -1,10 +1,7 @@
 Solution **profanity-predictor** is designed for the task of real-time profanity prediction based on the multimodal (audio and textual channels of the speech) analysis.
-.. start-badges
-.. list-table::
-   :stub-columns: 1
 
-   * - license
-     - | |license|
+.. image:: https://img.shields.io/badge/License-BSD_3--Clause-blue.svg
+   :target: https://opensource.org/license/bsd-3-clause/
 
 Description
 ===============
@@ -99,8 +96,3 @@ Citation
         url = {https://github.com/expertspec/profanity-predictor},
         version = {0.0.1}
     }
-
-
-.. |license| image:: https://img.shields.io/github/license/expertspec/expert?color=deepgreen
-   :alt: Supported License
-   :target: https://github.com/expertspec/profanity-predictor/blob/main/LICENSE
