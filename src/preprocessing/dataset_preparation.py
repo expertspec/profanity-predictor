@@ -20,7 +20,7 @@ def get_annotation(
     signal: torch.Tensor = None,
     dir_path: str | PathLike = None,
     model: str = "local",
-    device: torch.device | None = None,
+    device: torch.device = torch.device("cpu"),
 ) -> Dict:
     """Creates dict with annotations
 
@@ -36,27 +36,24 @@ def get_annotation(
     if model not in ["server", "local"]:
         raise NotImplementedError("'model' must be 'server' or 'local'.")
 
-    _device = torch.device("cpu")
-    if device is not None:
-        _device = device
+    _device = device
 
     if model == "server":
         stt_model = whisper.load_model("medium", device=_device)
     elif model == "local":
         stt_model = whisper.load_model("small", device=_device)
 
-    # if signal:
+    timemarks_for_targets = {}
 
     if dir_path:
         records = os.listdir(dir_path)
         if ".gitkeep" in records:
             records.remove(".gitkeep")
 
-        timemarks_for_targets = {}
         for record_name in tqdm(records):
             file_path = os.path.join(dir_path, record_name)
             res = speech_to_text.transcribe_signal(
-                stt_model=stt_model, record_path=file_path
+                stt_model=stt_model, signal=file_path
             )
             timemarks_for_targets[file_path] = speech_to_text.get_all_words(res)
 
@@ -72,33 +69,34 @@ def get_samples(files_features: Union[str, PathLike, List]) -> List:
     Returns:
         List: _description_
     """
-    if isinstance(files_features, str):
+    samples = []
+
+    if isinstance(files_features, (str, PathLike)):
         with open(files_features) as f:
             files_features = json.load(f)
-    else:
-        samples = []
-        for elem in files_features:
-            for num in range(0, len(files_features[elem]), 2):
-                if files_features[elem][num : num + 7][-1]["mask"] == 1:
-                    try:
-                        samples.append(files_features[elem][num : num + 7])
-                    except IndexError:
-                        samples.append(files_features[elem][num:])
-                elif files_features[elem][num : num + 7][-1]["mask"] == 0:
-                    try:
-                        samples.append(files_features[elem][num : num + 7])
-                    except IndexError:
-                        samples.append(files_features[elem][num:])
-                elif files_features[elem][num : num + 7][-1]["mask"] == 2:
-                    try:
-                        samples.append(files_features[elem][num : num + 7])
-                    except IndexError:
-                        samples.append(files_features[elem][num:])
-                elif files_features[elem][num:][-1]["mask"] == 2:
-                    try:
-                        samples.append(files_features[elem][num : num + 7])
-                    except IndexError:
-                        samples.append(files_features[elem][num:])
+
+    for elem in files_features:
+        for num in range(0, len(files_features[elem]), 2):
+            if files_features[elem][num : num + 7][-1]["mask"] == 1:
+                try:
+                    samples.append(files_features[elem][num : num + 7])
+                except IndexError:
+                    samples.append(files_features[elem][num:])
+            elif files_features[elem][num : num + 7][-1]["mask"] == 0:
+                try:
+                    samples.append(files_features[elem][num : num + 7])
+                except IndexError:
+                    samples.append(files_features[elem][num:])
+            elif files_features[elem][num : num + 7][-1]["mask"] == 2:
+                try:
+                    samples.append(files_features[elem][num : num + 7])
+                except IndexError:
+                    samples.append(files_features[elem][num:])
+            elif files_features[elem][num:][-1]["mask"] == 2:
+                try:
+                    samples.append(files_features[elem][num : num + 7])
+                except IndexError:
+                    samples.append(files_features[elem][num:])
     return samples
 
 
@@ -154,7 +152,7 @@ def words_to_features(
     file_path: str | PathLike = None,
     sr: int = 16000,
     banned_words=None,
-) -> Dict:
+) -> List[Dict]:
     """Function to convert that extracts MFCCs based on timestamps for annotation
 
     Args:

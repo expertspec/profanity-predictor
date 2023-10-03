@@ -28,7 +28,7 @@ def transcribe_signal(
     return transribation
 
 
-def get_all_words(transcribation: Dict) -> Tuple[List, str]:
+def get_all_words(transcribation: Dict) -> List[Dict]:
     """Get all stamps with words from the transcribed text.
 
     Args:

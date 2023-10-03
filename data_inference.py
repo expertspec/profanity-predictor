@@ -6,7 +6,7 @@ import click
 import torch
 from src.preprocessing import dataset_preparation
 from src.features.feature_dataset import FeatureDataset
-from src.models.prediction_model import LSTM_attention
+from src.models.prediction_model import PredictionModel
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
@@ -28,7 +28,7 @@ from tqdm import tqdm
 )
 def get_samples_predictions(
     path_to_data: str | PathLike,
-    device: torch.device | None = None,
+    device: torch.device = torch.device("cpu"),
     weights: str | PathLike = "./weights/model_attention_asr.pt",
     path_to_banned_words: str | PathLike = "./data/banned_words.txt",
 ) -> list:
@@ -43,22 +43,20 @@ def get_samples_predictions(
         list: list with labels for every sample
     """
 
-    _device = torch.device("cpu")
-    if device is not None:
-        _device = device
+    _device = device
 
     with open(path_to_banned_words) as f:
         banned_words = f.readlines()
         banned_words = [word.strip() for word in banned_words]
 
-    timemarks_for_target = dataset_preparation.get_annotation(path_to_data)
+    timemarks_for_target = dataset_preparation.get_annotation(dir_path=path_to_data)
     files_features = dataset_preparation.annotation_to_features(
         timemarks_for_target, banned_words=banned_words
     )
     samples = dataset_preparation.get_samples(files_features)
     dataset = FeatureDataset(samples, 17, 7)
     dataloader = DataLoader(dataset, shuffle=False, batch_size=4)
-    prediction_model = LSTM_attention(221, 1024, 2, 3).to(_device)
+    prediction_model = PredictionModel(221, 1024, 2, 3).to(_device)
     prediction_model.load_state_dict(
         torch.load(weights, map_location=torch.device("cpu"))
     )
@@ -67,7 +65,7 @@ def get_samples_predictions(
         predictions = []
         for elem, _ in tqdm(dataloader):
             batch_prediction = prediction_model(elem.to(_device))
-            predictions.append([pred.argmax().to("cpu") for pred in batch_prediction])
+            predictions.append(batch_prediction.argmax(dim=1).to("cpu").tolist())
     return predictions
 
 

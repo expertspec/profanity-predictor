@@ -4,9 +4,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-class LSTM_attention(nn.Module):
+class PredictionModel(nn.Module):
     def __init__(self, input_dim, hidden_dim, num_layers, output_dim):
-        super(LSTM_attention, self).__init__()
+        super(PredictionModel, self).__init__()
 
         # Define the LSTM layers
         self.lstm1 = nn.LSTM(

@@ -20,7 +20,7 @@ from torch.utils.data import DataLoader
 
 from src.features.tools import speech_to_text
 from src.preprocessing import dataset_preparation
-from src.models.prediction_model import LSTM_attention
+from src.models.prediction_model import PredictionModel
 from src.features.feature_dataset import FeatureDataset
 
 
@@ -40,7 +40,7 @@ _device = torch.device("cpu")
 stt_model = whisper.load_model("small", device=_device)
 weights = "./weights/model_attention_asr.pt"
 
-prediction_model = LSTM_attention(221, 1024, 2, 3).to(_device)
+prediction_model = PredictionModel(221, 1024, 2, 3).to(_device)
 prediction_model.load_state_dict(torch.load(weights, map_location=torch.device("cpu")))
 prediction_model.eval()
 
