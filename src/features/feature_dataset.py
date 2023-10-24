@@ -23,7 +23,7 @@ class FeatureDataset(Dataset):
             num_bins (int, optional): number of MFCC bins. Defaults to 17.
             num_elems (int, optional): number of elements in sequence. Defaults to 7.
         """
-        if type(data) in [str, PathLike]:
+        if isinstance(data, (str, PathLike)):
             with open(data) as f:
                 self.data = json.load(f)
         else:
