@@ -65,6 +65,13 @@ Run inference for working with speech stream
 
     $  python3 stream_inference.py
 
+Dataset
+=============
+The dataset is available `here <https://huggingface.co/datasets/Lameus/en_spontaneous_profanity>`_
+
+Article
+=============
+`Multimodal prediction of profanity based on speech analysis <https://www.sciencedirect.com/science/article/pii/S1877050923019981>`_
 
 Backlog
 =============
